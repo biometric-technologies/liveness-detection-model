@@ -3,6 +3,7 @@ from keras.layers import Conv2D, Dropout, Dense
 from keras.layers import GlobalAveragePooling2D
 from keras.optimizers import Adam
 from keras.models import Model
+from keras.metrics import AUC
 
 
 def GetModel(img_width, img_height):
@@ -23,6 +24,6 @@ def GetModel(img_width, img_height):
 
     model = Model(inputs=pretrain_net.input, outputs=x, name='mobilenetv2_spoof')
     learning_rate = 0.0001
-    model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy', metrics=['acc'])
+    model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy', metrics=['acc', AUC(name='auc')])
 
     return model
