@@ -1,6 +1,7 @@
 import cv2
 import os
 import shutil
+import zlib
 import argparse
 
 import numpy as np
@@ -47,48 +48,44 @@ if __name__ == '__main__':
     resized_dir = args["resized_dir"]
     target_size = args["target_size"]
 
+    # CelebA-Spoof keeps each subject in a numbered folder with many frames.
+    # The validation split is made by subject, so that no person appears in both
+    # train and validation (a split by file would leak identities and overstate accuracy).
     for dataset_split in ['train', 'test']:
         split_dir = os.path.join(data_dir, dataset_split)
-        live_dir = os.path.join(split_dir, 'live')
-        spoof_dir = os.path.join(split_dir, 'spoof')
-        real_dir = os.path.join(split_dir, 'real')
+        for label in ['real', 'spoof']:
+            os.makedirs(os.path.join(split_dir, label), exist_ok=True)
+            if dataset_split == 'train':
+                os.makedirs(os.path.join(valid_dir, label), exist_ok=True)
 
-        os.makedirs(live_dir, exist_ok=True)
-        os.makedirs(spoof_dir, exist_ok=True)
-
-        numbered_folders = [f for f in os.listdir(split_dir) if os.path.isdir(os.path.join(split_dir, f))]
+        numbered_folders = sorted(f for f in os.listdir(split_dir)
+                                  if os.path.isdir(os.path.join(split_dir, f)) and f not in ('real', 'spoof'))
 
         for numbered_folder in numbered_folders:
             numbered_folder_path = os.path.join(split_dir, numbered_folder)
-            if numbered_folder != 'live' and numbered_folder != 'spoof':
-                shutil.rmtree(numbered_folder_path)
+            # deterministic 20% of subjects go to validation
+            to_valid = dataset_split == 'train' and zlib.crc32(numbered_folder.encode()) % 5 == 0
+            target_root = valid_dir if to_valid else split_dir
 
             for sub_folder in ['live', 'spoof']:
                 sub_folder_path = os.path.join(numbered_folder_path, sub_folder)
-
+                label = 'real' if sub_folder == 'live' else 'spoof'
                 if os.path.exists(sub_folder_path):
                     for image_file in os.listdir(sub_folder_path):
-                        if image_file.endswith('.png'):
+                        if image_file.lower().endswith(('.png', '.jpg')):
                             shutil.move(os.path.join(sub_folder_path, image_file),
-                                        os.path.join(real_dir if sub_folder == 'live' else spoof_dir, image_file))
-
-    for dataset_split in ['real', 'spoof']:
-        split_dir_source = os.path.join(train_dir, dataset_split)
-        split_dir_dest = os.path.join(valid_dir, dataset_split)
-        files = os.listdir(split_dir_source)
-        for i, file_name in enumerate(files):
-            if i % 5 == 0:
-                source_path = os.path.join(split_dir_source, file_name)
-                dest_path = os.path.join(split_dir_dest, file_name)
-                shutil.move(source_path, dest_path)
+                                        os.path.join(target_root, label, f"{numbered_folder}_{image_file}"))
+            shutil.rmtree(numbered_folder_path)
 
     for sub_dir in os.listdir(data_dir):
         split_dir = os.path.join(data_dir, sub_dir)
         new_dir = os.path.join(resized_dir, sub_dir)
         for sub_folder in ['real', 'spoof']:
             sub_folder_path = os.path.join(split_dir, sub_folder)
+            out_dir = os.path.join(new_dir, sub_folder)
+            os.makedirs(out_dir, exist_ok=True)
             for img in os.listdir(sub_folder_path):
                 image_path = os.path.join(sub_folder_path, img)
                 image = cv2.imread(image_path, cv2.IMREAD_COLOR)
                 resized_image = resize_image_with_aspect_ratio(image, target_size)
-                cv2.imwrite(os.path.join(new_dir, img), resized_image)
+                cv2.imwrite(os.path.join(out_dir, img), resized_image)

@@ -25,7 +25,7 @@ if __name__ == '__main__':
     if not os.path.exists(outputfile_path):
         with open(outputfile_path, mode="a", newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Epoch', 'Steps per epoch', 'Threshold', 'FAR', 'FRR', 'ACC', 'ACER'])
+            writer.writerow(['epoch', 'steps_per_epoch', 'threshold', 'apcer', 'bpcer', 'acer', 'eer'])
 
     for epoch in list_of_epochs:
         for step in list_of_steps:
