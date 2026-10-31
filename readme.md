@@ -113,7 +113,7 @@ The `model.tflite` from release v0.2.0 is also the input of the ONNX conversion 
 - [biometric-models-onnx-converters](https://github.com/biometric-technologies/biometric-models-onnx-converters): notebooks that convert this model and FaceNet to ONNX.
 - [tensorflow-facenet-model-test](https://github.com/biometric-technologies/tensorflow-facenet-model-test): test harness for the FaceNet TensorFlow Lite model.
 - [facenet-recognition-model](https://github.com/biometric-technologies/facenet-recognition-model) and [mtcnn-face-detection-model](https://github.com/biometric-technologies/mtcnn-face-detection-model): reserved for the face embedding and face detection models.
-- [docs](https://github.com/biometric-technologies/docs): source of the developer documentation at docs.iriscan.net.
+- [docs](https://github.com/biometric-technologies/docs): source of the developer documentation at docs.iriscan.com.
 
 ## License
 
