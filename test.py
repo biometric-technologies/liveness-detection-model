@@ -21,7 +21,10 @@ import numpy as np
 from pad_metrics import apcer, bpcer, bpcer_at_apcer, eer, worst_apcer
 
 try:
-    from tensorflow.lite import Interpreter
+    # "from tensorflow.lite import Interpreter" fails: tensorflow.lite is a
+    # lazily loaded module whose names are only reachable as attributes.
+    import tensorflow as tf
+    Interpreter = tf.lite.Interpreter
 except ImportError:  # lightweight runtime
     from ai_edge_litert.interpreter import Interpreter
 
