@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # TensorFlow 2.13 has wheels for Python 3.8 to 3.11
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: pip
+
+      # opencv-python needs the OpenGL runtime
+      - name: System libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1
+
+      - name: Install
+        run: pip install -r requirements.txt pytest
+
+      # PAD metrics, dataset split, model head and tflite scoring on synthetic
+      # data; no dataset or trained model is needed.
+      - name: Tests
+        run: pytest -v
