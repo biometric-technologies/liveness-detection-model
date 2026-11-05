@@ -121,4 +121,4 @@ The code is released under the MIT License, copyright (c) 2023 Biometric Technol
 
 ## Contact
 
-Questions and bug reports: [open an issue](https://github.com/biometric-technologies/liveness-detection-model/issues) or write to info@iriscan.net. More about Iriscan at https://www.iriscan.com.
+Questions and bug reports: [open an issue](https://github.com/biometric-technologies/liveness-detection-model/issues) or write to info@iriscan.com. More about Iriscan at https://www.iriscan.com.
